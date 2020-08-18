@@ -1,0 +1,1 @@
+arch_homo_chroms = list(range(1,23)) + ['X', 'Y', 'MT', 'nonchrom']
