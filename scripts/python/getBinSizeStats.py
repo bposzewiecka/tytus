@@ -7,6 +7,8 @@ liftover_fasta_file = snakemake.input['liftover_fasta_file']
 stats_tsv_file = snakemake.output['stats_tsv_file']
 
 from SND import get_SNDs_derived_in_target
+from SND import get_SNDs_derived_in_query
+
 from collections import defaultdict
 from collections import Counter
 from consts import CLUSTERED_SUBSTITUTIONS_WINDOW_LENGTH 

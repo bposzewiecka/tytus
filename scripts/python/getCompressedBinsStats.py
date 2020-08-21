@@ -1,4 +1,4 @@
-WINDOW_SIZE =  snakemake.wildcards['window_size']
+WINDOW_SIZE =  int(snakemake.wildcards['window_size'])
 
 derived_in_type = snakemake.wildcards['derived']
 chrom = snakemake.wildcards['chromosome']
