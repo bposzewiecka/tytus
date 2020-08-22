@@ -4,6 +4,8 @@ from itertools import product
 from scipy.special import comb
 import numpy
 from collections import defaultdict
+from consts import CLUSTERED_SUBSTITUTIONS_MIN_SIZE 
+from consts import WTS_MIN_PERCENT
 
 def binom(n, k, p):
     return comb(n, k, exact = True)  * (p ** k) * (1 - p) ** (n - k)  
@@ -42,8 +44,8 @@ def UBCS_fast(shifts, p):
     
     first_cluster_size = sum(shifts[:n])
     
-    if first_cluster_size > 4:
-        prob = binom_from(first_cluster_size, math.ceil(0.8 * first_cluster_size), p)
+    if first_cluster_size >= CLUSTERED_SUBSTITUTIONS_MIN_SIZE:
+        prob = binom_from(first_cluster_size, math.ceil(WTS_MIN_PERCENT * first_cluster_size), p)
         
     mem = defaultdict(lambda: 1)
         
@@ -62,17 +64,17 @@ def UBCS_fast(shifts, p):
             n_a = 0 
             a = 0
             
-            a = binom_from(shifts[k + n - 1], math.ceil(0.8 * cluster_size) -  conditional_freqs_size, p)
+            a = binom_from(shifts[k + n - 1], math.ceil(WTS_MIN_PERCENT * cluster_size) -  conditional_freqs_size, p)
             
-            upper_bound =  min( math.ceil(0.8 * prev_cluster_size) - conditional_freqs_size , shifts[k - 1] + 1)
+            upper_bound =  min( math.ceil(WTS_MIN_PERCENT * prev_cluster_size) - conditional_freqs_size , shifts[k - 1] + 1)
             
-            if prev_cluster_size < 5:
+            if prev_cluster_size < CLUSTERED_SUBSTITUTIONS_MIN_SIZE:
                 upper_bound = shifts[k - 1] + 1
             
             for freq in range(0 , upper_bound):
                 n_a += binom(shifts[k - 1], freq, p)  *  prev_mem[ (freq, ) + conditional_freqs[:-1] ]
 
-            if cluster_size > 4:
+            if cluster_size >= CLUSTERED_SUBSTITUTIONS_MIN_SIZE:
                 prob += a * n_a * conditional_freqs_prob
                 
             mem[conditional_freqs] = n_a
