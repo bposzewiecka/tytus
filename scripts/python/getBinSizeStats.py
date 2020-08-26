@@ -12,6 +12,7 @@ from SND import get_SNDs_derived_in_query
 from collections import defaultdict
 from collections import Counter
 from consts import CLUSTERED_SUBSTITUTIONS_WINDOW_LENGTH 
+from consts import CLUSTERED_SUBSTITUTIONS_MIN_SIZE 
 
 def get_clustered_substitutions_coords(snds, number_of_bins):
     coords = set()
@@ -36,7 +37,7 @@ def get_clustered_substitutions_coords(snds, number_of_bins):
                 substs_in_window.append(target_coord)
                 
             else:
-                if len(substs_in_window) > 4:
+                if len(substs_in_window) > CLUSTERED_SUBSTITUTIONS_MIN_SIZE:
                     coords.update(substs_in_window)
 
                 substs_in_window = [ target_coord ]
