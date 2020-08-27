@@ -33,8 +33,11 @@ class SNDWindow:
         while end < len(snds) and snds[end].target_coord()  <= end_window_coord:
             end += 1
             
-        #print(start, end)   
+        self.number_of_snds = end - start - 1
         
+        if self.number_of_snds < CLUSTERED_SUBSTITUTIONS_MIN_SIZE:
+            return
+
         for snd in snds[start + 1: end]:
             bin_coord = snd.target_coord()  // self.bin_size - self.middle_coord_bin + self.number_of_bins - 1
             self.window[bin_coord].append(snd)
@@ -49,7 +52,10 @@ class SNDWindow:
     def get_number_of_biased_snds_in_cluster(self, i):
         return sum([count for count in self.window_biased_counts[i:i + self.number_of_bins]])
     
-    def contains_cluster(self):
+    def is_clustered(self):
+        
+        if self.number_of_snds < CLUSTERED_SUBSTITUTIONS_MIN_SIZE:
+            return False
 
         for i in range(self.number_of_bins):
             if self.get_number_of_snds_in_cluster(i) >= CLUSTERED_SUBSTITUTIONS_MIN_SIZE:
@@ -58,6 +64,9 @@ class SNDWindow:
         return False
 
     def is_biased_clustered(self):
+        
+        if self.number_of_snds < CLUSTERED_SUBSTITUTIONS_MIN_SIZE:
+            return False
 
         for i in range(self.number_of_bins):
             number_of_snds = self.get_number_of_snds_in_cluster(i)
@@ -66,4 +75,7 @@ class SNDWindow:
             if number_of_snds >= CLUSTERED_SUBSTITUTIONS_MIN_SIZE and number_of_biased_snds / number_of_snds >= WTS_MIN_PERCENT:
                 return True
         return False
+    
+    def get_middle_coord(self):
+        return self.middle_coord
 

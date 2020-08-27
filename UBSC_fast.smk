@@ -6,8 +6,8 @@ rule main:
     input:	
         expand('data/{query}/{target}.{query}/{type}/w{window}/outgroup.{outgroup}/ubcs_fast/{type}.{target}.{query}.w{window}.derived_in_{derived}.outgroup.{outgroup}.bin_size_stats.tsv'
 , target = 'hg38', query = 'panTro5', window = 5, outgroup = 'rheMac8',  derived = 'target', type= 'target', chromosome = chroms),
-        expand('data/{query}/{target}.{query}/{type}/w{window}/outgroup.{outgroup}/ubcs_fast/{type}.{target}.{query}.w{window}.derived_in_{derived}.outgroup.{outgroup}.window_size.{window_size}.compressed_bins_stats.tsv', target = 'hg38', query = apes, window = 5, outgroup = 'rheMac8',  derived = 'target', type= 'target', chromosome = chroms, window_size = 300),
-        expand('data/{query}/{target}.{query}/{type}/w{window}/outgroup.{outgroup}/ubcs_fast/derived_in_{derived}/r{region}/{type}.{target}.{query}.{chromosome}.w{window}.r{region}.derived_in_{derived}.outgroup.{outgroup}.window_size.{window_size}.rbest.snd.liftover.ubcs.tsv', target = 'hg38', query = ['panTro5', 'panPan2', 'gorGor5'], window = 5, outgroup = 'rheMac8',  derived = 'target', type= 'target', chromosome = chroms, window_size = 300, region = 1000 * 1000)
+	#expand('data/{query}/{target}.{query}/{type}/w{window}/outgroup.{outgroup}/ubcs_fast/{type}.{target}.{query}.w{window}.derived_in_{derived}.outgroup.{outgroup}.window_size.{window_size}.compressed_bins_stats.tsv', target = 'hg38', query = apes, window = 5, outgroup = 'rheMac8',  derived = 'target', type= 'target', chromosome = chroms, window_size = 300),
+	#expand('data/{query}/{target}.{query}/{type}/w{window}/outgroup.{outgroup}/ubcs_fast/derived_in_{derived}/r{region}/{type}.{target}.{query}.{chromosome}.w{window}.r{region}.derived_in_{derived}.outgroup.{outgroup}.window_size.{window_size}.rbest.snd.liftover.ubcs.tsv', target = 'hg38', query = ['panTro5', 'panPan2', 'gorGor5'], window = 5, outgroup = 'rheMac8',  derived = 'target', type= 'target', chromosome = chroms, window_size = 300, region = 1000 * 1000)
 
 
 rule generate_bin_statistics:

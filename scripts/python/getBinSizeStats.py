@@ -1,5 +1,3 @@
-BINS = 1, 2, 3, 4, 5, 10, 300
-
 derived_in_type = snakemake.wildcards['derived']
 chrom = snakemake.wildcards['chromosome']
 
@@ -10,59 +8,47 @@ from SND import get_SNDs_derived_in_target
 from SND import get_SNDs_derived_in_query
 
 from collections import defaultdict
-from collections import Counter
 from consts import CLUSTERED_SUBSTITUTIONS_WINDOW_LENGTH 
-from consts import CLUSTERED_SUBSTITUTIONS_MIN_SIZE 
 
-def get_clustered_substitutions_coords(snds, number_of_bins):
-    coords = set()
+from SNDWindow import SNDWindow
 
-    bin_size = CLUSTERED_SUBSTITUTIONS_WINDOW_LENGTH  / number_of_bins
-    previous = -CLUSTERED_SUBSTITUTIONS_WINDOW_LENGTH 
+NUMBER_OF_BINS_LIST = 1, 2, 3, 4, 5, 10, 300
 
-    n = len(snds)
-
-    for shift_no in range(number_of_bins):
-        
-        i = 0
-        window_no = -1
-        substs_in_window = []
-        previous_size =  0
-     
-        while i < n:
-            target_coord = snds[i].target_coord()
-            curr_window = (target_coord + shift_no * bin_size) // CLUSTERED_SUBSTITUTIONS_WINDOW_LENGTH 
-            
-            if curr_window  == window_no:
-                substs_in_window.append(target_coord)
-                
-            else:
-                if len(substs_in_window) > CLUSTERED_SUBSTITUTIONS_MIN_SIZE:
-                    coords.update(substs_in_window)
-
-                substs_in_window = [ target_coord ]
-                window_no = curr_window 
-            i += 1  
-            
-    return coords
-
-def get_bin_size_statistics(number_of_bins_list):
+def get_bin_size_statistics():
     
     with open(stats_tsv_file, 'w') as f_out:
     
         if derived_in_type == 'target':
             snds = get_SNDs_derived_in_target(liftover_fasta_file)
+            for snd in snds:
+                snd.biased = snd.biased_in_target()
         else:
             snds = get_SNDs_derived_in_query(liftover_fasta_file)
+            for snd in snds:
+                snd.biased = snd.biased_in_query()
 
-        for number_of_bins in number_of_bins_list:
-            coords = get_clustered_substitutions_coords(snds, number_of_bins)
+        for number_of_bins in NUMBER_OF_BINS_LIST:
 
-            counter = Counter([ coord // 1000 // 1000 for coord in sorted(coords)])
+            number_of_clustered = defaultdict(int)
+            number_of_biased_clustered = defaultdict(int)
+                
+            for index in range(len(snds)):
+                snd_window = SNDWindow(index, snds, CLUSTERED_SUBSTITUTIONS_WINDOW_LENGTH, number_of_bins)
+                chrom_bin = snd_window.get_middle_coord() // 1000 // 1000
+                is_clustered = snd_window.is_clustered() 
+                is_biased_clustered = snd_window.is_biased_clustered() 
 
-            for megabase, value in sorted(counter.items()):
-                o = chrom, megabase * 1000 * 1000, (megabase + 1) * 1000 * 1000, number_of_bins, value
+                if is_clustered:
+                    number_of_clustered[chrom_bin] += 1
+
+                if is_biased_clustered:
+                    number_of_biased_clustered[chrom_bin] += 1  
+
+
+            for region in sorted(number_of_clustered):
+                o = chrom, region * 1000 * 1000, (region + 1) * 1000 * 1000 - 1, number_of_bins, number_of_clustered[region],  number_of_biased_clustered[region], number_of_biased_clustered[region] / number_of_clustered[region] 
                 f_out.write('\t'.join(map(str, o)))
                 f_out.write('\n')
 
-get_bin_size_statistics(BINS)
+
+get_bin_size_statistics()
