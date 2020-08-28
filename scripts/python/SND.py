@@ -61,6 +61,14 @@ class SND:
     def biased_in_target(self):
         return self.derrived_in_target() and self.outgroup_base() in WEAK_NUCLEOTIDES and self.target_base() in STRONG_NUCLEOTIDES
 
+    def biased(self):
+        if self.derrived_in_query():
+            return  self.outgroup_base() in WEAK_NUCLEOTIDES and self.query_base() in STRONG_NUCLEOTIDES
+        elif self.derrived_in_target():
+            return self.outgroup_base() in WEAK_NUCLEOTIDES and self.target_base() in STRONG_NUCLEOTIDES 
+
+        return False   
+
 
 def get_SNDs(file_name):
 
@@ -86,6 +94,7 @@ def get_SNDs(file_name):
 def get_SNDs_derived_in_target(file_name):
 
     SNDs = get_SNDs(file_name)
+
 
     return [ SND  for SND in SNDs if SND.derrived_in_target() ]
 
