@@ -63,7 +63,7 @@ class SNDWindow:
             self.window[bin_coord].append(snd)
             self.window_counts[bin_coord] += 1
             
-            if snd.biased:
+            if snd.biased():
                 self.window_biased_counts[bin_coord] += 1
                 
     def get_number_of_snds_in_cluster(self, i):
@@ -155,6 +155,11 @@ class SNDWindow:
         n = len(bins) // 2 + 1
 
         first_cluster_size = sum(bins[:n])
+	
+        prob = 0
+
+        if p == 0:
+            print(bins)
 
         if first_cluster_size >= CLUSTERED_SUBSTITUTIONS_MIN_SIZE:
             prob = binom_from(first_cluster_size, math.ceil(WTS_MIN_PERCENT * first_cluster_size), p)
@@ -177,7 +182,7 @@ class SNDWindow:
 
                 n_a = 0
            
-                a = binom_from(bins[k + n - 1], math.ceil(WTS_MIN_PERCENT * cluster_size) -  conditional_freqs_size, p)
+                a = binom_from(bins[k + n - 1], max(math.ceil(WTS_MIN_PERCENT * cluster_size) -  conditional_freqs_size, 0), p)
 
                 upper_bound =  min( math.ceil(WTS_MIN_PERCENT * prev_cluster_size) - conditional_freqs_size, bins[k - 1] + 1)
 

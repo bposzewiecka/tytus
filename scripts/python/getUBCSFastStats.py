@@ -44,6 +44,8 @@ def get_UBCS_stats():
         for region in  region_snds_number:
             region_p[region] = region_biased_snds_number[region] / region_snds_number[region]
 
+        print(region_p)
+
         for index, SND in enumerate(SNDs):
             region = SND.target_coord() // REGION_LEN
             window = SNDWindow(index, snds = SNDs , window_size = WINDOW_SIZE, number_of_bins = NUMBER_OF_BINS)
