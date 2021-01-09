@@ -1,3 +1,7 @@
+# wget http://hgdownload.soe.ucsc.edu/gbdb/hg38/snp/dbSnp153Common.bb
+# wget http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/bigBedToBed
+# ./bigBedToBed dbSnp153Common.bb dbSnp153Common.bed
+
 #configfile: 'config.yaml'
 
 #from scripts.python.consts import CHROMOSOMES
@@ -40,6 +44,7 @@ rule all:
     input:
         expand('data/{query}/{target}.{query}/{type}/split.log', query = ['panTro4', 'hg38'], target = 'panPan2', type = ['target', 'query']),
         expand('data/{query}/{target}.{query}/all/w{window}/outgroup.{outgroup}/all.{target}.{query}.w{window}.r{region}.outgroup.{outgroup}.rbest.snd.liftover.ubcs.tsv', target = 'panPan2', query = ['panTro4', 'hg38'], window = 5, outgroup= 'gorGor5', region = 1000 * 1000 ),
+	expand('data/{target}/snps/split.log', target = 'hg38')
         #expand('data/{query}/{target}.{query}/{type}/split.log', query = 'panTro4', target = 'panPan2', type = ['target', 'query']),
         #expand('data/{query}/{target}.{query}/all/w{window}/outgroup.{outgroup}/all.{target}.{query}.w{window}.r{region}.outgroup.{outgroup}.rbest.snd.liftover.ubcs.tsv', target = 'panPan2', query = 'panTro4',window = 5, outgroup= 'gorGor5', region = 1000 * 1000 ),
         #expand('data/{query}/{target}.{query}/{type}/split.log', query = apes, target = 'panPan2', type = ['target', 'query']),
@@ -142,6 +147,17 @@ rule split_alignments:
         'data/{query}/{target}.{query}/{type}/split.log'
     script: 
         'scripts/python/splitAXT.py'
+
+rule split_snps:
+    input:
+        snps_file = 'data/{target}/{target}.snps.bed'
+    output:
+        'data/{target}/snps/split.log'
+    shell:
+        """
+           awk '{{ if (2 * $6 ==  length($7) )  print }}'  {input.snps_file}  | 
+	   awk '{{ file = sprintf("data/{wildcards.target}/snps/%s.%s.bed", $1, "{wildcards.target}", ".bed"); print >> file }} END {{ echo "END" }} ' > {output} 
+	"""
 
 rule filter_allele_count2:
     input:
