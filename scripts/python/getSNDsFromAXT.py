@@ -12,14 +12,6 @@ target_name = snakemake.wildcards['target']
 output_window_len = int(snakemake.wildcards['window'])
 ttype = snakemake.wildcards['type']
 
-#alignment_file = '/home/basia/ubcs/data/panTro6/a.axt'
-#snd_file = 'a.snd.bed'
-#query_chrom_sizes = get_chrom_sizes('/home/basia/ubcs/data/panTro6/panTro6.chrom.sizes')
-
-#query_name = 'panTro6'
-#target_name = 'hg38'
-#output_window_len = 5
-
 snp_file = snakemake.input['snp_file']
 
 with open(snp_file) as f:

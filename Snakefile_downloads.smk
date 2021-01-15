@@ -10,7 +10,6 @@ rule all:
          expand(DATA_FOLDER + '/{query}/{chromosome}.{query}.{target}.from.query.rbest.axt', query = [ 'panTro6', 'panPan3', 'gorGor6', 'ponAbe3' ], target = 'hg38', chromosome = 'chr1'),
          expand(DATA_FOLDER + '/{query}/{chromosome}.{target}.{query}.from.target.rbest.axt', target = 'hg38', query = 'nomLeu3', chromosome = 'chr1')
 	 
-
 rule split_snps:
     input:
         snps_file = DATA_FOLDER + '/{target}/{target}.snps.bed'
@@ -72,20 +71,28 @@ rule download_query_target_axt:
     output:
         DATA_FOLDER + '/{query}/{query}.{target}.rbest.axt.gz'
     params:
-        query_upper_first_letter = uppercase_first_letter('target'),
+        upper_first_letter = uppercase_first_letter('target'),
         data_folder = DATA_FOLDER 
     shell:
-        'wget -q -P {params.data_folder}/{wildcards.query} https://hgdownload.soe.ucsc.edu/goldenPath/{wildcards.query}/vs{params.query_upper_first_letter}/reciprocalBest/axtRBestNet/{wildcards.query}.{wildcards.target}.rbest.axt.gz '
+        'wget -q -P {params.data_folder}/{wildcards.query} https://hgdownload.soe.ucsc.edu/goldenPath/{wildcards.query}/vs{params.upper_first_letter}/reciprocalBest/axtRBestNet/{wildcards.query}.{wildcards.target}.rbest.axt.gz '
 
 rule download_target_query_axt:
     output:
         DATA_FOLDER + '/{query}/{target}.{query}.rbest.axt.gz'
     params:
-        query_upper_first_letter = uppercase_first_letter('query'),
+        upper_first_letter = uppercase_first_letter('query'),
         data_folder = DATA_FOLDER
     shell:
-        'wget -q -P {params.data_folder}/{wildcards.query} https://hgdownload.soe.ucsc.edu/goldenPath/{wildcards.target}/vs{params.query_upper_first_letter}/reciprocalBest/axtRBestNet/{wildcards.target}.{wildcards.query}.rbest.axt.gz '
+        'wget -q -P {params.data_folder}/{wildcards.query} https://hgdownload.soe.ucsc.edu/goldenPath/{wildcards.target}/vs{params.upper_first_letter}/reciprocalBest/axtRBestNet/{wildcards.target}.{wildcards.query}.rbest.axt.gz '
 
+rule download_chain_file:
+    output:
+        DATA_FOLDER + '/{query}/{target}.{query}.rbest.net.gz'
+    params:
+        upper_first_letter = uppercase_first_letter('query'),
+	data_folder = DATA_FOLDER
+    shell:
+        'wget -q -P {params.data_folder}/{wildcards.query} https://hgdownload.soe.ucsc.edu/goldenPath/{wildcards.target}/vs{params.upper_first_letter}/reciprocalBest/{wildcards.target}.{wildcards.query}.rbest.net.gz'
 
 rule split_alignments_from_target:
     input:
