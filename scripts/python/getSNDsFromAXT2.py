@@ -1,5 +1,5 @@
 from utils import get_chrom_sizes
-from consts import QUALITY_WINDOW_LENGTH
+from consts import QUALITY_WINDOW_LENGTH, MAX_NUMBER_OF_MISMACHES
 
 from Bio.Seq import Seq
 
@@ -99,9 +99,9 @@ def add_snds_from_axt_entry(t_chrom, t_start, q_chrom, q_start, strand, target_a
 
         #print('without deletions and insertions')
 
-        if len([ 1  for t_win_chr, q_win_chr  in zip(t_window, q_window) if t_win_chr != q_win_chr]) > 2: continue
+        if len([ 1  for t_win_chr, q_win_chr  in zip(t_window, q_window) if t_win_chr != q_win_chr]) > MAX_NUMBER_OF_MISMACHES: continue
 
-        #print('number of  mismatches below
+        #print('number of  mismatches above max threshold')
 
         t_subst_start = t_start + t_count - 2
 
