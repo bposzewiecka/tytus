@@ -1,14 +1,13 @@
-DATA_FOLDER = 'data1'
+configfile: "config.yaml"
 
-hg_chroms = [ 'chr' + str(chrom) for chrom in list(range(1,23)) + ['X', 'Y']]
+DATA_FOLDER = config['data_folder']
+
+chromosomes = {}
+chromosomes['hg38'] = [ 'chr' + str(chrom) for chrom in list(range(1,23)) + ['X', 'Y']]
 
 rule main:
     input:
-        expand(DATA_FOLDER + '/{query}/{chromosome}.{target}.{query}.from.target.rbest.bed', chromosome = 'chr1', query = 'nomLeu3', target = 'hg38'),
-        expand(DATA_FOLDER + '/{query}/{chromosome}.{target}.{query}.from.query.rbest.bed', chromosome = 'chr1', query = 'panTro6', target = 'hg38'),
-	expand(DATA_FOLDER + '/{query}/outgroup.{outgroup}/{chromosome}.{target}.{query}.outgroup.{outgroup}.from.{ffrom}.rbest.fasta', chromosome = 'chr1', query = 'panTro6', target = 'hg38', outgroup = 'rheMac10', ffrom = 'query'),
-        expand(DATA_FOLDER + '/{query}/outgroup.{outgroup}/{chromosome}.{target}.{query}.outgroup.{outgroup}.from.{ffrom}.rbest.bed', chromosome = 'chr1', query = 'nomLeu3', target = 'hg38', outgroup = 'rheMac10', ffrom = 'target')
-
+        [ expand( DATA_FOLDER +  '/{query}/outgroup.{outgroup}/{chromosome}.{target}.{query}.outgroup.{outgroup}.from.{ffrom}.rbest.fasta', chromosome = chromosomes[sample['target']], **sample) for sample in config['samples'] ]	    
 
 rule liftover:
     input:

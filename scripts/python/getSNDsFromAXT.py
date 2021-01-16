@@ -131,7 +131,7 @@ def add_snds_from_axt_entry(t_chrom, t_start, q_chrom, q_start, strand, target_a
         #    print(t_output_window, t_output_window[5], snps[int(t_coord_start) + 6]
 
         name = ('SND_ID:'  + str(len(snd_bed_entries)) , 'QUERY:' + query_name, 'TARGET:'+ target_name,
-i                'TARGET_COORDS:' + t_coords, 'QUERY_COORDS:' + q_coords,
+                'TARGET_COORDS:' + t_coords, 'QUERY_COORDS:' + q_coords,
                 'CHANGE:' +  t_window + '>' + q_window, 'FROM:' + ffrom, 'SNP:' + str(t_snp), 'STRAND:' + strand)
 
         name = ';'.join(name)
