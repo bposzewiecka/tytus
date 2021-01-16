@@ -10,8 +10,10 @@ rule all:
          expand(DATA_FOLDER + '/{query}/{query}.{target}/{chromosome}.{query}.{target}.from.query.rbest.axt', query = [ 'panTro6', 'panPan3', 'gorGor6', 'ponAbe3' ], target = 'hg38', chromosome = 'chr1'),
          expand(DATA_FOLDER + '/{query}/{target}.{query}/{chromosome}.{target}.{query}.from.target.rbest.axt', target = 'hg38', query = 'nomLeu3', chromosome = 'chr1'),
 	 expand(DATA_FOLDER + '/{query}/{query}.chrom.sizes', query = 'nomLeu3'),
-	 expand(DATA_FOLDER + '/{query}/{query}.chrom.sizes', query = 'hg38')
-	 
+	 expand(DATA_FOLDER + '/{query}/{query}.chrom.sizes', query = 'hg38'),
+	 expand(DATA_FOLDER + '/{query}/{target}.{query}.rbest.chain', query = 'rheMac10', target = 'hg38'),
+	 expand(DATA_FOLDER + '/{query}/{query}.fa', query = 'rheMac10'),
+		 
 rule split_snps:
     input:
         snps_file = DATA_FOLDER + '/{target}/{target}.snps.bed'
@@ -21,7 +23,6 @@ rule split_snps:
         data_folder = DATA_FOLDER
     shell:
         """   awk '{{ file = sprintf("{params.data_folder}/{wildcards.target}/snps/%s.{wildcards.target}.snps.bed", $1, ".bed"); print >> file }}' {input}  """
-
 
 rule download_snps:
     output:
@@ -40,7 +41,6 @@ rule download_bigBedToBed:
     shell:
         ' wget -q -P {params.data_folder} http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/bigBedToBed ; '
         ' chmod +x {params.data_folder}/bigBedToBed'
-
 
 rule convert_BigBedtoBed:
     input:
@@ -61,11 +61,11 @@ rule download_chrom_sizes:
 
 rule download_ref:
     output:
-        DATA_FOLDER + '/{query}/{query}.fa.gz'
+        DATA_FOLDER + '/{query}/{query}.fa'
     params:
         data_folder = DATA_FOLDER
     shell:
-        'wget -q -P {params.data_folder}/{wildcards.query} https://hgdownload.soe.ucsc.edu/goldenPath/{wildcards.query}/bigZips/{wildcards.query}.fa.gz'
+        'wget -q -P {params.data_folder}/{wildcards.query} https://hgdownload.soe.ucsc.edu/goldenPath/{wildcards.query}/bigZips/{wildcards.query}.fa.gz; gunzip {output}.gz'
 
 uppercase_first_letter = lambda name:  lambda wildcards:  wildcards[name][0].upper() + wildcards[name][1:]
 
@@ -89,12 +89,12 @@ rule download_target_query_axt:
 
 rule download_chain_file:
     output:
-        DATA_FOLDER + '/{query}/{target}.{query}.rbest.net.gz'
+        DATA_FOLDER + '/{query}/{target}.{query}.rbest.chain'
     params:
-        upper_first_letter = uppercase_first_letter('query'),
+        upper_first_letter = uppercase_first_letter('target'),
 	data_folder = DATA_FOLDER
     shell:
-        'wget -q -P {params.data_folder}/{wildcards.query} https://hgdownload.soe.ucsc.edu/goldenPath/{wildcards.target}/vs{params.upper_first_letter}/reciprocalBest/{wildcards.target}.{wildcards.query}.rbest.net.gz'
+        'wget -q -P {params.data_folder}/{wildcards.query} https://hgdownload.soe.ucsc.edu/goldenPath/{wildcards.query}/vs{params.upper_first_letter}/reciprocalBest/{wildcards.target}.{wildcards.query}.rbest.chain.gz; gunzip {output}.gz'
 
 rule split_alignments_from_target:
     input:
@@ -103,7 +103,6 @@ rule split_alignments_from_target:
         alignment_file = DATA_FOLDER + '/{query}/{target}.{query}/{chromosome}.{target}.{query}.from.target.rbest.axt'
     run:
         split_AXT(input.alignment_file, wildcards.target, wildcards.query, 'target', DATA_FOLDER + '/{query}/{target}.{query}/{chromosome}.{target}.{query}.from.target.rbest.axt' )
-
 
 rule split_alignments_from_query:
     input:
