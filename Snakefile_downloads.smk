@@ -4,21 +4,23 @@ DATA_FOLDER = 'data1'
 
 rule all:
     input:
-         expand(DATA_FOLDER + '/{target}/snps/{target}.{chromosome}.snps.bed', target = 'hg38', chromosome = 'chr1'),
+         expand(DATA_FOLDER + '/{target}/snps/{chromosome}.{target}.snps.bed', target = 'hg38', chromosome = 'chr1'),
          expand(DATA_FOLDER + '/{query}/{query}.{target}.rbest.axt.gz', query = [ 'panTro6', 'panPan3', 'gorGor6', 'ponAbe3' ], target = 'hg38'),
          expand(DATA_FOLDER + '/{query}/{target}.{query}.rbest.axt.gz', query = [ 'nomLeu3' ], target = 'hg38'),
-         expand(DATA_FOLDER + '/{query}/{chromosome}.{query}.{target}.from.query.rbest.axt', query = [ 'panTro6', 'panPan3', 'gorGor6', 'ponAbe3' ], target = 'hg38', chromosome = 'chr1'),
-         expand(DATA_FOLDER + '/{query}/{chromosome}.{target}.{query}.from.target.rbest.axt', target = 'hg38', query = 'nomLeu3', chromosome = 'chr1')
+         expand(DATA_FOLDER + '/{query}/{query}.{target}/{chromosome}.{query}.{target}.from.query.rbest.axt', query = [ 'panTro6', 'panPan3', 'gorGor6', 'ponAbe3' ], target = 'hg38', chromosome = 'chr1'),
+         expand(DATA_FOLDER + '/{query}/{target}.{query}/{chromosome}.{target}.{query}.from.target.rbest.axt', target = 'hg38', query = 'nomLeu3', chromosome = 'chr1'),
+	 expand(DATA_FOLDER + '/{query}/{query}.chrom.sizes', query = 'nomLeu3'),
+	 expand(DATA_FOLDER + '/{query}/{query}.chrom.sizes', query = 'hg38')
 	 
 rule split_snps:
     input:
         snps_file = DATA_FOLDER + '/{target}/{target}.snps.bed'
     output:
-        DATA_FOLDER + '/{target}/snps/{target}.{chromosomes}.snps.bed'
+        DATA_FOLDER + '/{target}/snps/{chromosome}.{target}.snps.bed'
     params:
         data_folder = DATA_FOLDER
     shell:
-        """   awk '{{ file = sprintf("{params.data_folder}/{wildcards.target}/snps/{wildcards.target}.%s.snps.bed", $1, ".bed"); print >> file }}' {input}  """
+        """   awk '{{ file = sprintf("{params.data_folder}/{wildcards.target}/snps/%s.{wildcards.target}.snps.bed", $1, ".bed"); print >> file }}' {input}  """
 
 
 rule download_snps:
@@ -98,15 +100,15 @@ rule split_alignments_from_target:
     input:
         alignment_file = DATA_FOLDER + '/{query}/{target}.{query}.rbest.axt.gz'
     output:
-        alignment_file = DATA_FOLDER + '/{query}/{chromosome}.{target}.{query}.from.target.rbest.axt'
+        alignment_file = DATA_FOLDER + '/{query}/{target}.{query}/{chromosome}.{target}.{query}.from.target.rbest.axt'
     run:
-        split_AXT(input.alignment_file, wildcards.target, wildcards.query, 'target', DATA_FOLDER + '/{query}/{chromosome}.{target}.{query}.from.target.rbest.axt' )
+        split_AXT(input.alignment_file, wildcards.target, wildcards.query, 'target', DATA_FOLDER + '/{query}/{target}.{query}/{chromosome}.{target}.{query}.from.target.rbest.axt' )
 
 
 rule split_alignments_from_query:
     input:
         alignment_file = DATA_FOLDER + '/{query}/{query}.{target}.rbest.axt.gz'
     output:
-        alignment_file = DATA_FOLDER + '/{query}/{chromosome}.{query}.{target}.from.query.rbest.axt'
+        alignment_file = DATA_FOLDER + '/{query}/{query}.{target}/{chromosome}.{query}.{target}.from.query.rbest.axt'
     run:
-        split_AXT(input.alignment_file, wildcards.target, wildcards.query, 'query', DATA_FOLDER + '/{query}/{chromosome}.{query}.{target}.from.query.rbest.axt')
+        split_AXT(input.alignment_file, wildcards.target, wildcards.query, 'query', DATA_FOLDER + '/{query}/{query}.{target}/{chromosome}.{query}.{target}.from.query.rbest.axt')

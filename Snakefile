@@ -1,13 +1,19 @@
 #configfile: 'config.yaml'
 
-apes = ['panTro6',  'papAnu4', 'ponAbe3', 'panPan2', 'panTro5', 'nomLeu3', 'gorGor5', 'gorGor4']
+DATA_FOLDER = 'data1'
 
 hg_chroms = [ 'chr' + str(chrom) for chrom in list(range(1,23)) + ['X', 'Y']]
 
+rule main:
+    input:
+        expand(DATA_FOLDER + '/{query}/{chromosome}.{target}.{query}.from.target.rbest.bed', chromosome = 'chr1', query = 'nomLeu3', target = 'hg38'),
+        expand(DATA_FOLDER + '/{query}/{chromosome}.{target}.{query}.from.query.rbest.bed', chromosome = 'chr1', query = 'panTro6', target = 'hg38'),
+
+
 rule get_fasta_from_liftover:
     input:
-        bed_file = 'data/{query}/{target}.{query}/{type}/v{window}/outgroup.{outgroup}/{type}.{target}.{query}.{chromosome}.v{window}.outgroup.{outgroup}.{file_type}.from.{axt_dir}.snd.liftover.bed',
-        ref_file = 'data/{outgroup}/{outgroup}.fa'
+        bed_file = DATA_FOLDER + '/{query}/{target}.{query}/{type}/v{window}/outgroup.{outgroup}/{type}.{target}.{query}.{chromosome}.v{window}.outgroup.{outgroup}.{file_type}.from.{axt_dir}.snd.liftover.bed',
+        ref_file = DATA_FOLDER + '/{outgroup}/{outgroup}.fa'
     output:
         'data/{query}/{target}.{query}/{type}/v{window}/outgroup.{outgroup}/{type}.{target}.{query}.{chromosome}.v{window}.outgroup.{outgroup}.{file_type}.from.{axt_dir}.snd.liftover.fasta'
     shell:
@@ -22,13 +28,27 @@ rule liftover:
     script:
         'scripts/R/liftover.R'
 
-rule create_snd_chrom_file_rbest:
+rule bed_snd_from_anx_target:
     input:
-        alignment_file = 'data/{query}/{target}.{query}/{type}/{type}.{target}.{query}.{chromosome}.rbest.axt',
-        query_chrom_sizes_file = 'data/{query}/{query}.chrom.sizes',
-	snp_file = 'data/{target}/snps/{chromosome}.{target}.snps.bed'
+        alignment_file = DATA_FOLDER + '/{query}/{target}.{query}/{chromosome}.{target}.{query}.from.target.rbest.axt',
+        query_chrom_sizes_file = DATA_FOLDER + '/{query}/{query}.chrom.sizes',
+	snp_file = DATA_FOLDER + '/{target}/snps/{chromosome}.{target}.snps.bed'
     output:
-        snd_file = 'data/{query}/{target}.{query}/{type}/v{window}/{type}.{target}.{query}.{chromosome}.v{window}.rbest.snd.bed'
+        snd_file = DATA_FOLDER + '/{query}/{chromosome}.{target}.{query}.from.target.rbest.bed'
+    params:
+        ffrom = 'target'	    
     script:
-        'scripts/python/getSNDsFromAXT.py'
+        'scripts/python/getSNDsFromAXT2.py'
+
+rule bed_snd_from_anx_query:
+    input:
+        alignment_file = DATA_FOLDER + '/{query}/{query}.{target}/{chromosome}.{query}.{target}.from.query.rbest.axt',
+        query_chrom_sizes_file = DATA_FOLDER + '/{target}/{target}.chrom.sizes',
+        snp_file = DATA_FOLDER + '/{target}/snps/{chromosome}.{target}.snps.bed'
+    output:
+        snd_file = DATA_FOLDER + '/{query}/{chromosome}.{target}.{query}.from.query.rbest.bed'
+    params:
+        ffrom = 'query'
+    script:
+        'scripts/python/getSNDsFromAXT2.py'
 
