@@ -9,7 +9,6 @@ rule main:
         expand(DATA_FOLDER + '/{query}/{chromosome}.{target}.{query}.from.target.rbest.bed', chromosome = 'chr1', query = 'nomLeu3', target = 'hg38'),
         expand(DATA_FOLDER + '/{query}/{chromosome}.{target}.{query}.from.query.rbest.bed', chromosome = 'chr1', query = 'panTro6', target = 'hg38'),
 
-
 rule get_fasta_from_liftover:
     input:
         bed_file = DATA_FOLDER + '/{query}/{target}.{query}/{type}/v{window}/outgroup.{outgroup}/{type}.{target}.{query}.{chromosome}.v{window}.outgroup.{outgroup}.{file_type}.from.{axt_dir}.snd.liftover.bed',
@@ -38,7 +37,7 @@ rule bed_snd_from_anx_target:
     params:
         ffrom = 'target'	    
     script:
-        'scripts/python/getSNDsFromAXT2.py'
+        'scripts/python/getSNDsFromAXT.py'
 
 rule bed_snd_from_anx_query:
     input:
@@ -50,5 +49,5 @@ rule bed_snd_from_anx_query:
     params:
         ffrom = 'query'
     script:
-        'scripts/python/getSNDsFromAXT2.py'
+        'scripts/python/getSNDsFromAXT.py'
 
