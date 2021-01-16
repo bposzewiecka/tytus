@@ -1,18 +1,19 @@
 from scripts.python.splitAXT import split_AXT
 
-DATA_FOLDER = 'data1'
+configfile: "config.yaml"
+
+DATA_FOLDER = config['data_folder']
+DEFAULT_CHROMOSOME = config['default_chromosome']
 
 rule all:
     input:
-         expand(DATA_FOLDER + '/{target}/snps/{chromosome}.{target}.snps.bed', target = 'hg38', chromosome = 'chr1'),
-         expand(DATA_FOLDER + '/{query}/{query}.{target}.rbest.axt.gz', query = [ 'panTro6', 'panPan3', 'gorGor6', 'ponAbe3' ], target = 'hg38'),
-         expand(DATA_FOLDER + '/{query}/{target}.{query}.rbest.axt.gz', query = [ 'nomLeu3' ], target = 'hg38'),
-         expand(DATA_FOLDER + '/{query}/{query}.{target}/{chromosome}.{query}.{target}.from.query.rbest.axt', query = [ 'panTro6', 'panPan3', 'gorGor6', 'ponAbe3' ], target = 'hg38', chromosome = 'chr1'),
-         expand(DATA_FOLDER + '/{query}/{target}.{query}/{chromosome}.{target}.{query}.from.target.rbest.axt', target = 'hg38', query = 'nomLeu3', chromosome = 'chr1'),
-	 expand(DATA_FOLDER + '/{query}/{query}.chrom.sizes', query = 'nomLeu3'),
-	 expand(DATA_FOLDER + '/{query}/{query}.chrom.sizes', query = 'hg38'),
-	 expand(DATA_FOLDER + '/{query}/{target}.{query}.rbest.chain', query = 'rheMac10', target = 'hg38'),
-	 expand(DATA_FOLDER + '/{query}/{query}.fa', query = 'rheMac10'),
+         expand(DATA_FOLDER + '/{target}/snps/{chromosome}.{target}.snps.bed', target = 'hg38', chromosome = DEFAULT_CHROMOSOME),
+         [ expand(DATA_FOLDER + '/{query}/{query}.{target}/{chromosome}.{query}.{target}.from.query.rbest.axt', **sample, chromosome = DEFAULT_CHROMOSOME) for sample in config['samples'] if sample['ffrom'] == 'query' ], 
+         [ expand(DATA_FOLDER + '/{query}/{target}.{query}/{chromosome}.{target}.{query}.from.target.rbest.axt', **sample, chromosome = DEFAULT_CHROMOSOME) for sample in config['samples'] if sample['ffrom'] == 'target' ],
+	 [ expand(DATA_FOLDER + '/{target}/{target}.chrom.sizes', **sample)  for sample in config['samples'] if sample['ffrom'] == 'query' ],
+	 [ expand(DATA_FOLDER + '/{query}/{query}.chrom.sizes', **sample)  for sample in config['samples'] if sample['ffrom'] == 'target' ],
+	 [ expand(DATA_FOLDER + '/{outgroup}/{target}.{outgroup}.rbest.chain', **sample)  for sample in config['samples'] ],
+	 [ expand(DATA_FOLDER + '/{outgroup}/{outgroup}.fa', **sample) for sample in config['samples'] ]
 		 
 rule split_snps:
     input:
