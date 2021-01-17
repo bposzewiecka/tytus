@@ -7,22 +7,32 @@ chromosomes['hg38'] = [ 'chr' + str(chrom) for chrom in list(range(1,23)) + ['X'
 
 rule main:
     input:
-        [ expand( DATA_FOLDER +  '/{query}/outgroup.{outgroup}/{chromosome}.{target}.{query}.outgroup.{outgroup}.from.{ffrom}.rbest.fasta', chromosome = chromosomes[sample['target']], **sample) for sample in config['samples'] ]	    
+        [ expand( DATA_FOLDER +  '/{query}/outgroup.{outgroup}/{chromosome}.{target}.{query}.outgroup.{outgroup}.from.{ffrom}.rbest.fasta', chromosome = chromosomes[sample['target']], **sample) for sample in config['samples']],
+
+
+rule generate_ubcs_statistics:
+    input:
+        DATA_FOLDER + '/{query}/outgroup.{outgroup}/{chromosome}.{target}.{query}.outgroup.{outgroup}.from.{ffrom}.rbest.fasta'
+    output:
+        ubcs_stats_file = DATA_FOLDER + '/{query}/outgroup.{outgroup}/derived_in_{derived}/region.{region}.window.{window_size}.bins.{number_of_bins}.snps.{snps}/{chromosome}.{target}.{query}.outgroup.{outgroup}.derived_in_{derived}.region.{region}.window.{window_size}.bins.{number_of_bins}.snps.{snps}.from.{ffrom}.ubcs.summary.tsv',
+        ubcs_stats_details_file = DATA_FOLDER + '/{query}/outgroup.{outgroup}/derived_in_{derived}/region.{region}.window.{window_size}.bins.{number_of_bins}.{snps}/{chromosome}.{target}.{query}.outgroup.{outgroup}.derived_in_{derived}.region.{region}.window.{window_size}.bins.{number_of_bins}.snps.{snps}.from.{ffrom}.ubcs.details.tsv'
+    script:
+        'scripts/python/getUBCSFastStats.py'
 
 rule liftover:
     input:
         SNDs_file = DATA_FOLDER + '/{query}/{chromosome}.{target}.{query}.from.{ffrom}.rbest.bed',
         chain_file = DATA_FOLDER + '/{outgroup}/{target}.{outgroup}.rbest.chain'
     output:
-        liftover_file = DATA_FOLDER + '/{query}/outgroup.{outgroup}/{chromosome}.{target}.{query}.outgroup.{outgroup}.from.{ffrom}.rbest.bed',
+        liftover_file = DATA_FOLDER + '/{query}/outgroup.{outgroup}/{chromosome}.{target}.{query}.outgroup.{outgroup}.from.{ffrom}.rbest.bed'
     script:
         'scripts/R/liftover.R'
 
 rule get_fasta_from_liftover:
     input:
-        liftover_file =  DATA_FOLDER +  '/{query}/outgroup.{outgroup}/{chromosome}.{target}.{query}.outgroup.{outgroup}.from.{ffrom}.rbest.bed',
+        liftover_file =  DATA_FOLDER + '/{query}/outgroup.{outgroup}/{chromosome}.{target}.{query}.outgroup.{outgroup}.from.{ffrom}.rbest.bed',
         ref_file = DATA_FOLDER + '/{outgroup}/{outgroup}.fa',
-	ref_file_fai =  DATA_FOLDER + '/{outgroup}/{outgroup}.fa.fai',
+	ref_file_fai =  DATA_FOLDER + '/{outgroup}/{outgroup}.fa.fai'
     output:
         DATA_FOLDER +  '/{query}/outgroup.{outgroup}/{chromosome}.{target}.{query}.outgroup.{outgroup}.from.{ffrom}.rbest.fasta'
     shell:

@@ -48,7 +48,6 @@ rule join_compressed_bins_statistics:
     shell:
         'cat {input} > {output}'
 
-
 rule generate_ubcs_statistics:
     input:
         liftover_fasta_file = 'data/{query}/{target}.{query}/{type}/v{window}/outgroup.{outgroup}/{type}.{target}.{query}.{chromosome}.v{window}.outgroup.{outgroup}.rbest.from.{axt_dir}.snd.liftover.fasta'
