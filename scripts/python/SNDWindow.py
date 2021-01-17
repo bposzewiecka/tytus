@@ -158,8 +158,8 @@ class SNDWindow:
 	
         prob = 0
 
-        if p == 0:
-            print(bins)
+        #if p == 0:
+        #    print(bins)
 
         if first_cluster_size >= CLUSTERED_SUBSTITUTIONS_MIN_SIZE:
             prob = binom_from(first_cluster_size, math.ceil(WTS_MIN_PERCENT * first_cluster_size), p)

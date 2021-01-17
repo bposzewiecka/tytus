@@ -8,14 +8,16 @@ chromosomes['hg38'] = [ 'chr' + str(chrom) for chrom in list(range(1,23)) + ['X'
 rule main:
     input:
         [ expand( DATA_FOLDER +  '/{query}/outgroup.{outgroup}/{chromosome}.{target}.{query}.outgroup.{outgroup}.from.{ffrom}.rbest.fasta', chromosome = chromosomes[sample['target']], **sample) for sample in config['samples']],
+        [ expand(DATA_FOLDER + '/{query}/outgroup.{outgroup}/derived_in_{derived}/region.{region}.window.{window_size}.bins.{number_of_bins}.with_snps.{with_snps}/{chromosome}.{target}.{query}.outgroup.{outgroup}.derived_in_{derived}.region.{region}.window.{window_size}.bins.{number_of_bins}.with_snps.{with_snps}.from.{ffrom}.ubcs.summary.tsv', chromosome = chromosomes[sample['target']], **sample, **ubcs_params) for sample in config['samples'] for ubcs_params in config['ubcs_params'] if sample['query'] == 'panTro6'],
 
 
 rule generate_ubcs_statistics:
     input:
-        DATA_FOLDER + '/{query}/outgroup.{outgroup}/{chromosome}.{target}.{query}.outgroup.{outgroup}.from.{ffrom}.rbest.fasta'
+        liftover_fasta_file = DATA_FOLDER + '/{query}/outgroup.{outgroup}/{chromosome}.{target}.{query}.outgroup.{outgroup}.from.{ffrom}.rbest.fasta'
     output:
-        ubcs_stats_file = DATA_FOLDER + '/{query}/outgroup.{outgroup}/derived_in_{derived}/region.{region}.window.{window_size}.bins.{number_of_bins}.snps.{snps}/{chromosome}.{target}.{query}.outgroup.{outgroup}.derived_in_{derived}.region.{region}.window.{window_size}.bins.{number_of_bins}.snps.{snps}.from.{ffrom}.ubcs.summary.tsv',
-        ubcs_stats_details_file = DATA_FOLDER + '/{query}/outgroup.{outgroup}/derived_in_{derived}/region.{region}.window.{window_size}.bins.{number_of_bins}.{snps}/{chromosome}.{target}.{query}.outgroup.{outgroup}.derived_in_{derived}.region.{region}.window.{window_size}.bins.{number_of_bins}.snps.{snps}.from.{ffrom}.ubcs.details.tsv'
+        ubcs_stats_file = DATA_FOLDER + '/{query}/outgroup.{outgroup}/derived_in_{derived}/region.{region}.window.{window_size}.bins.{number_of_bins}.with_snps.{with_snps}/{chromosome}.{target}.{query}.outgroup.{outgroup}.derived_in_{derived}.region.{region}.window.{window_size}.bins.{number_of_bins}.with_snps.{with_snps}.from.{ffrom}.ubcs.summary.tsv',
+        ubcs_stats_details_file = DATA_FOLDER + '/{query}/outgroup.{outgroup}/derived_in_{derived}/region.{region}.window.{window_size}.bins.{number_of_bins}.with_snps.{with_snps}/{chromosome}.{target}.{query}.outgroup.{outgroup}.derived_in_{derived}.region.{region}.window.{window_size}.bins.{number_of_bins}.with_snps.{with_snps}.from.{ffrom}.ubcs.details.tsv',
+	ubcs_stats_log_file = DATA_FOLDER + '/{query}/outgroup.{outgroup}/derived_in_{derived}/region.{region}.window.{window_size}.bins.{number_of_bins}.with_snps.{with_snps}/{chromosome}.{target}.{query}.outgroup.{outgroup}.derived_in_{derived}.region.{region}.window.{window_size}.bins.{number_of_bins}.with_snps.{with_snps}.from.{ffrom}.ubcs.log.tsv'
     script:
         'scripts/python/getUBCSFastStats.py'
 

@@ -40,6 +40,8 @@ class SND:
         self.target_chrom, self.target_start, self.target_end = get_coords(attrs['TARGET_COORDS'])
 
         self.query_chrom, self.query_start, self.query_end = get_coords(attrs['QUERY_COORDS'])
+        
+        self.snp = attrs['SNP'] == 'True'
 
         self.outgroup_seq = outgroup_seq.upper()
 
@@ -67,7 +69,10 @@ class SND:
         elif self.derrived_in_target():
             return self.outgroup_base() in WEAK_NUCLEOTIDES and self.target_base() in STRONG_NUCLEOTIDES 
 
-        return False   
+        return False 
+
+    def is_snp(self):
+        return self.snp
 
 
 def get_SNDs(file_name):

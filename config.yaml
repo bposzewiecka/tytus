@@ -23,5 +23,12 @@ samples:
     query: 'nomLeu3'
     ffrom: 'target'
     outgroup: 'rheMac10'  
-data_folder: 'data2'
+data_folder: 'data'
 default_chromosome: 'chr1'
+ubcs_params:
+  - region: 1000000
+    window_size: 300
+    number_of_bins: [2, 20, 300]
+    with_snps: ['True', 'False']
+    derived: ['target', 'query']
+
