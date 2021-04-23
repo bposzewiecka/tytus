@@ -1,4 +1,4 @@
-#TYTUS - UBCS statistics calculation tool
+# TYTUS - UBCS statistics calculation tool
 
 Software used for calculatioin of the UBCS Statistics.
 Results were presented during talk "Revised time estimation of the ancestral human chromosome 2 fusion"
